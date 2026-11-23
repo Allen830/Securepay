@@ -1,0 +1,129 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "securepay"
+version = "1.0.0"
+description = "SecurePay: a campus card-payment network (MACS 902 Modern Cryptography, Assessment 1)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "MACS 902 Project Group" }]
+keywords = ["cryptography", "libsodium", "ed25519", "x25519", "payment", "teaching"]
+classifiers = [
+    "Intended Audience :: Education",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security :: Cryptography",
+]
+dependencies = [
+    "pynacl==1.6.2",
+    "cryptography==44.0.3",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==9.0.2",
+    "ruff==0.17.5",
+    "mypy==2.4.1",
+    "bandit==1.9.4",
+    "pip-audit==2.10.1",
+]
+
+[project.scripts]
+securepay = "securepay.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "N",
+    "UP",
+    "B",
+    "C4",
+    "SIM",
+    "RUF",
+    "S",
+    "D",
+]
+ignore = [
+    "D105",
+    "D102",
+    "D107",
+    "D203",
+    "D213",
+    "D400",
+    "D401",
+    "D415",
+    "S104",
+    "S608",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = [
+    "S101",
+    "S105",
+    "S106",
+    "D",
+    "SLF001",
+]
+"src/securepay/attacks/*" = [
+    "SLF001",
+    "S110",
+]
+"src/securepay/gui.py" = [
+    "S603",
+    "S404",
+    "E501",
+]
+"src/securepay/cli.py" = [
+    "S603",
+    "S404",
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "pep257"
+
+[tool.mypy]
+python_version = "3.10"
+files = ["src/securepay"]
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = false
+pretty = true
+disable_error_code = ["call-overload", "arg-type", "unused-ignore"]
+
+[[tool.mypy.overrides]]
+module = "nacl.*"
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = "tests.*"
+ignore_errors = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "."]
+addopts = "-q"
+markers = [
+    "slow: tests that provision several throwaway networks (attack suite)",
+]
+
+[tool.bandit]
+exclude_dirs = ["tests", "network", ".venv"]
+skips = ["B608"]
